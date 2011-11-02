@@ -103,7 +103,10 @@ sub read_request {
   $self->app->log->debug('Reading FastCGI request.') if DEBUG;
 
   # Transaction
-  my $tx = $self->on_transaction->($self);
+  my $tx =
+      $self->can('build_tx')
+    ? $self->build_tx
+    : $self->on_transaction->($self);
   $tx->connection($c);
   my $req = $tx->req;
 
@@ -213,13 +216,15 @@ sub run {
 
     # Handle
     $self->app->log->debug('Handling FastCGI request.') if DEBUG;
-    $self->on_request->($self, $tx);
+    $self->can('emit')
+      ? $self->emit(request => $tx)
+      : $self->on_request->($self, $tx);
 
     # Response
     $self->write_response($tx);
 
     # Finish transaction
-    $tx->on_finish->($tx);
+    $tx->server_close;
   }
 }
 
