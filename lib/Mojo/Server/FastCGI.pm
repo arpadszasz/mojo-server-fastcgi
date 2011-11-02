@@ -113,7 +113,7 @@ sub read_request {
   # Type
   my ($type, $id, $body) = $self->read_record($c);
   unless ($type && $type eq 'BEGIN_REQUEST') {
-    $self->app->log->error("First FastCGI record wasn't a begin request.");
+    $self->app->log->info("First FastCGI record wasn't a begin request.");
     return;
   }
   $ENV{FCGI_ID} = $tx->{fcgi_id} = $id;
@@ -210,7 +210,7 @@ sub run {
 
     # Error
     unless ($tx) {
-      $self->app->log->error("No transaction for FastCGI request.");
+      $self->app->log->info("No transaction for FastCGI request.");
       next;
     }
 
