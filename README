@@ -40,7 +40,12 @@ contribution is welcome:
 
 https://github.com/arpadszasz/mojo-server-fastcgi
 
+Code has been contributed by the following:
+
+pboyd (Paul Boyd)
+
 
 BUGS
 
 - Autodetection of the FastCGI environment doesn't work.
+- Weak test suite.
