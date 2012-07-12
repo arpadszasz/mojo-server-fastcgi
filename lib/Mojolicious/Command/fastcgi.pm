@@ -1,5 +1,5 @@
 package Mojolicious::Command::fastcgi;
-use Mojo::Base 'Mojo::Command';
+use Mojo::Base 'Mojolicious::Command';
 
 use Mojo::Server::FastCGI;
 
