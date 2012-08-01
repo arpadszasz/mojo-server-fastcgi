@@ -18,6 +18,7 @@ use IO::Socket::INET;
 use Mojo::IOLoop;
 use Mojo::Template;
 use Mojo::UserAgent;
+use File::Slurp;
 
 # Mac OS X only test
 plan skip_all => 'Mac OS X required for this test!' unless $^O eq 'darwin';
@@ -36,7 +37,7 @@ my $mt     = Mojo::Template->new;
 
 # FastCGI setup
 my $fcgi = File::Spec->catfile($dir, 'test.fcgi');
-$mt->render_to_file(<<'EOF', $fcgi);
+write_file($fcgi, $mt->render(<<'EOF'));
 % use Config;
 #!<%= $Config{perlpath} %>
 
@@ -46,17 +47,50 @@ use warnings;
 % use FindBin;
 use lib '<%= "$FindBin::Bin/../../lib" %>';
 
+use Mojolicious::Lite;
 use Mojo::Server::FastCGI;
+use Mojolicious::Command::fastcgi;
+
+
+get '/' => { text =>'Your Mojo is working!' };
+
+
+post '/upload' => sub {
+    my $self = shift;
+    $self->render_data($self->req->upload('file')->slurp);
+  };
+
+
+
+post '/chunked' => sub {
+  my $self = shift;
+
+  my $params = $self->req->params->to_hash;
+  my @chunks;
+  for my $key (sort keys %$params) { push @chunks, $params->{$key} }
+
+  my $cb;
+  $cb = sub {
+    my $self = shift;
+    $cb = undef unless my $chunk = shift @chunks || '';
+    $self->write_chunk($chunk, $cb);
+  };
+  $self->$cb();
+};
+
 
 Mojo::Server::FastCGI->new->run;
 
 1;
 EOF
+
+
+
 chmod 0777, $fcgi;
 ok -x $fcgi, 'script is executable';
 
 # Apache setup
-$mt->render_to_file(<<'EOF', $config, $dir, $port, $fcgi);
+write_file($config, $mt->render(<<'EOF', $dir, $port, $fcgi));
 % my ($dir, $port, $fcgi) = @_;
 % use File::Spec;
 ServerName 127.0.0.1
@@ -106,14 +140,14 @@ for my $i (1 .. 10) { $params->{"test$i"} = $i }
 my $result = '';
 for my $key (sort keys %$params) { $result .= $params->{$key} }
 my ($code, $body);
-$tx = $ua->post_form("http://127.0.0.1:$port/diag/chunked_params" => $params);
+$tx = $ua->post_form("http://127.0.0.1:$port/chunked" => $params);
 is $tx->res->code, 200, 'right status';
 is $tx->res->body, $result, 'right content';
 
 # Upload
 ($code, $body) = undef;
 $tx = $ua->post_form(
-  "http://127.0.0.1:$port/diag/upload" => {file => {content => $result}});
+  "http://127.0.0.1:$port/upload" => {file => {content => $result}});
 is $tx->res->code, 200, 'right status';
 is $tx->res->body, $result, 'right content';
 
