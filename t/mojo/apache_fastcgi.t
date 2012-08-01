@@ -37,7 +37,8 @@ my $mt     = Mojo::Template->new;
 # FastCGI setup
 my $fcgi = File::Spec->catfile($dir, 'test.fcgi');
 $mt->render_to_file(<<'EOF', $fcgi);
-#!/usr/bin/env perl
+% use Config;
+#!<%= $Config{perlpath} %>
 
 use strict;
 use warnings;
