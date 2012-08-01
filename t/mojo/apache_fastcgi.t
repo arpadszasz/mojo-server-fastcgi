@@ -24,7 +24,7 @@ use File::Slurp;
 plan skip_all => 'Mac OS X required for this test!' unless $^O eq 'darwin';
 plan skip_all => 'set TEST_APACHE to enable this test (developer only!)'
   unless $ENV{TEST_APACHE};
-plan tests => 12;
+plan tests => 13;
 
 # "Robots don't have any emotions, and sometimes that makes me very sad."
 use_ok 'Mojo::Server::FastCGI';
@@ -76,6 +76,11 @@ post '/chunked' => sub {
     $self->write_chunk($chunk, $cb);
   };
   $self->$cb();
+};
+
+get '/bug-0-in-body' => sub {
+   my $self = shift;
+   $self->render(text=>"0");
 };
 
 
@@ -150,6 +155,12 @@ $tx = $ua->post_form(
   "http://127.0.0.1:$port/upload" => {file => {content => $result}});
 is $tx->res->code, 200, 'right status';
 is $tx->res->body, $result, 'right content';
+
+
+# Bug test, returning "0" as body breaks the response.
+
+$tx = $ua->get("http://127.0.0.1:$port/bug-0-in-body");
+is $tx->res->body, "0", '0 returned in body';
 
 # Stop
 kill 'INT', $pid;
