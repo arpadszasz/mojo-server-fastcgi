@@ -13,7 +13,7 @@ usage: $0 fastcgi
 EOF
 
 # "Interesting... Oh no wait, the other thing, tedious."
-sub run { Mojo::Server::FastCGI->new->run }
+sub run { Mojo::Server::FastCGI->new(app => shift->app)->run }
 
 1;
 __END__
