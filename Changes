@@ -1,5 +1,8 @@
 This file documents the revision history for Mojo-Server-FastCGI.
 
+0.4     October 25, 2012
+        - Fixed compatibility with mojolicious +3.21 (sri, oetiker)
+
 0.3     July 13, 2012
         - Compatibility with Mojolicious 3.x (oetiker)
 

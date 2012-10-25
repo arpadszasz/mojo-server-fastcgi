@@ -6,7 +6,7 @@ use IO::Socket;
 
 use constant DEBUG => $ENV{MOJO_FASTCGI_DEBUG} || 0;
 
-our $VERSION = '0.3';
+our $VERSION = '0.4';
 
 # Roles
 my @ROLES = qw/RESPONDER  AUTHORIZER FILTER/;
