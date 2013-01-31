@@ -245,7 +245,7 @@ sub type_number {
 sub write_records {
   my ($self, $c, $type, $id, $body) = @_;
   return unless defined $c && defined $type && defined $id;
-  $body ||= '';
+  $body //= '';
 
   # Write records
   my $empty    = $body ? 0 : 1;
