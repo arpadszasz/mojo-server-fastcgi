@@ -226,7 +226,7 @@ sub run {
     $self->write_response($tx);
 
     # Finish transaction
-    $tx->server_close;
+    $tx->closed;
   }
 }
 
