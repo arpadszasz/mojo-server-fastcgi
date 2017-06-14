@@ -1,5 +1,9 @@
 This file documents the revision history for Mojo-Server-FastCGI.
 
+0.41    January 31, 2013
+        - Fixed a bug where a body containing a single "0" will get mangled,
+          and updated tests a bit (stigtsp)
+
 0.4     October 25, 2012
         - Fixed compatibility with mojolicious +3.21 (sri, oetiker)
 
